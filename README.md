@@ -140,6 +140,71 @@ The build script fetches brand theming (colors, fonts, app name) from Supabase a
 └── pubspec.yaml           # Flutter dependencies
 ```
 
+## Database Schema
+
+### `inventory`
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `sku` | `text` | `PRIMARY KEY` |
+| `slug` | `text` | `NOT NULL UNIQUE` |
+| `name` | `text` | `NOT NULL` |
+| `price_rupees` | `numeric` | `NOT NULL` |
+| `staging_dirs` | `ARRAY` | `NOT NULL` |
+| `created_at` | `timestamptz` | `DEFAULT now()` |
+| `thumbnail_url` | `text` | |
+| `prices` | `ARRAY` | |
+
+### `user_carts`
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` |
+| `user_id` | `uuid` | `NOT NULL REFERENCES auth.users(id)` |
+| `items` | `jsonb` | `NOT NULL DEFAULT '[]'` |
+| `total_price` | `numeric` | `NOT NULL DEFAULT 0.0` |
+| `status` | `text` | `NOT NULL CHECK (status IN ('active', 'processed'))` |
+| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` |
+| `updated_at` | `timestamptz` | `NOT NULL DEFAULT now()` |
+
+### `tenants`
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` |
+| `tenant_id` | `text` | `NOT NULL UNIQUE` |
+| `app_name` | `text` | `NOT NULL` |
+| `tagline` | `text` | |
+| `logo_asset_path` | `text` | |
+| `logo_network_url` | `text` | |
+| `color_primary` | `text` | `NOT NULL DEFAULT '#FF001A23'` |
+| `color_on_primary` | `text` | `NOT NULL DEFAULT '#FFFFFFFF'` |
+| `color_secondary` | `text` | `NOT NULL DEFAULT '#FFB3EFB2'` |
+| `color_on_secondary` | `text` | `NOT NULL DEFAULT '#FF001A23'` |
+| `color_background` | `text` | `NOT NULL DEFAULT '#FFE8F1F2'` |
+| `color_surface` | `text` | `NOT NULL DEFAULT '#FFFFFFFF'` |
+| `color_surface_container` | `text` | `NOT NULL DEFAULT '#FFE8F1F2'` |
+| `color_on_background` | `text` | `NOT NULL DEFAULT '#FF001A23'` |
+| `color_on_surface` | `text` | `NOT NULL DEFAULT '#FF001A23'` |
+| `color_on_surface_variant` | `text` | `NOT NULL DEFAULT '#4A5568'` |
+| `color_error` | `text` | `NOT NULL DEFAULT '#EF4444'` |
+| `color_on_error` | `text` | `NOT NULL DEFAULT '#FFFFFFFF'` |
+| `display_font_family` | `text` | `NOT NULL DEFAULT 'ClashDisplay'` |
+| `display_font_source` | `font_source` | `NOT NULL DEFAULT 'asset'` |
+| `body_font_family` | `text` | `NOT NULL DEFAULT 'ClashGrotesk'` |
+| `body_font_source` | `font_source` | `NOT NULL DEFAULT 'asset'` |
+| `font_size_scale` | `numeric` | `NOT NULL DEFAULT 1.00` |
+| `is_active` | `boolean` | `NOT NULL DEFAULT true` |
+| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` |
+| `updated_at` | `timestamptz` | `NOT NULL DEFAULT now()` |
+
+### `profiles`
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | `uuid` | `PRIMARY KEY REFERENCES auth.users(id)` |
+| `avatar_path` | `text` | |
+
 ## Deployment
 
 CI/CD via GitHub Actions pushes `hf_server/` to a HuggingFace Space, then SSH-deploys to an Oracle VM. See `.github/workflows/deploy.yml`.
